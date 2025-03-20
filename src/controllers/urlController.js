@@ -56,8 +56,11 @@ export const getUrl = async (req, res) => {
     try {
         const { shortCode } = req.params;
 
+        console.log(`🔍 Buscando URL con código: ${shortCode}`);
+
+        // Buscar en la base de datos
         const urlEntry = await prisma.shortenedUrl.findUnique({
-            where: { shortCode },
+            where: { shortCode }
         });
 
         if (!urlEntry) {
@@ -66,18 +69,21 @@ export const getUrl = async (req, res) => {
 
         // Verificar si la URL ha expirado
         if (urlEntry.expiresAt && new Date() > urlEntry.expiresAt) {
-            return res.status(410).json({ error: "Esta URL ha expirado" });
+            return res.status(410).json({ error: "URL expirada" });
         }
 
         // Incrementar contador de visitas
         await prisma.shortenedUrl.update({
             where: { shortCode },
-            data: { visits: urlEntry.visits + 1 },
+            data: { visits: urlEntry.visits + 1 }
         });
 
-        res.json({ originalUrl: urlEntry.originalUrl });
+        console.log(`✅ Redirigiendo a: ${urlEntry.originalUrl}`);
+
+        // Redirigir a la URL original
+        return res.redirect(urlEntry.originalUrl);
     } catch (error) {
-        console.error("Error al obtener la URL:", error);
-        res.status(500).json({ error: "Error interno del servidor" });
+        console.error("Error al redirigir:", error);
+        return res.status(500).json({ error: "Error interno del servidor" });
     }
 };
