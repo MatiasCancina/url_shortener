@@ -37,10 +37,11 @@ export const shortenUrl = async (req, res) => {
                 expiresAt,
             },
         });
+        const baseUrl = process.env.BASE_URL || "http://localhost:5000";
 
         res.json({
             message: "URL acortada con éxito",
-            shortUrl: `${process.env.BASE_URL}/${newUrl.shortCode}`,
+            shortUrl: `${baseUrl}/${newUrl.shortCode}`,
         });
     } catch (error) {
         console.error("Error al acortar la URL:", error);
