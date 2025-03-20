@@ -37,11 +37,10 @@ export const shortenUrl = async (req, res) => {
                 expiresAt,
             },
         });
-        const baseUrl = process.env.BASE_URL || "http://localhost:5000";
 
         res.json({
             message: "URL acortada con éxito",
-            shortUrl: `${baseUrl}/${newUrl.shortCode}`,
+            shortUrl: `${process.env.BASE_URL}/${newUrl.shortCode}`,
         });
     } catch (error) {
         console.error("Error al acortar la URL:", error);
@@ -84,6 +83,33 @@ export const getUrl = async (req, res) => {
         return res.redirect(urlEntry.originalUrl);
     } catch (error) {
         console.error("Error al redirigir:", error);
+        return res.status(500).json({ error: "Error interno del servidor" });
+    }
+};
+
+export const getUrlStats = async (req, res) => {
+    try {
+        const { shortCode } = req.params;
+
+        console.log(`📊 Obteniendo estadísticas de: ${shortCode}`);
+
+        const urlEntry = await prisma.shortenedUrl.findUnique({
+            where: { shortCode }
+        });
+
+        if (!urlEntry) {
+            return res.status(404).json({ error: "URL no encontrada" });
+        }
+
+        return res.json({
+            originalUrl: urlEntry.originalUrl,
+            shortUrl: `${process.env.BASE_URL}/${urlEntry.shortCode}`,
+            createdAt: urlEntry.createdAt,
+            expiresAt: urlEntry.expiresAt,
+            visits: urlEntry.visits
+        });
+    } catch (error) {
+        console.error("❌ Error al obtener estadísticas:", error);
         return res.status(500).json({ error: "Error interno del servidor" });
     }
 };

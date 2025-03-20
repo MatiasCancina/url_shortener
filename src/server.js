@@ -4,6 +4,7 @@ import cors from "cors";
 import urlRoutes from "./routes/urlRoutes.js";
 import { requestLoggerMiddleware } from "./middlewares/requestLogger.js";
 import { errorHandlerMiddleware } from "./middlewares/errorHandler.js";
+import { cleanupExpiredUrls } from "./middlewares/cleanupExpiredUrls.js";
 
 dotenv.config();
 const app = express();
@@ -11,6 +12,7 @@ const app = express();
 app.use(cors());
 app.use(express.json());
 app.use(requestLoggerMiddleware);
+app.use(cleanupExpiredUrls);
 
 // Rutas
 app.use("/api/urls", urlRoutes);
@@ -20,5 +22,5 @@ app.use(errorHandlerMiddleware);
 
 const PORT = process.env.PORT || 5000;
 app.listen(PORT, () => {
-    console.log(`Servidor corriendo en http://localhost:${PORT}`);
+    console.log(`✨ Servidor corriendo en http://localhost:${PORT}`);
 });
