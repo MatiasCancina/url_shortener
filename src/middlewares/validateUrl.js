@@ -1,4 +1,5 @@
 import validator from "validator";
+const blockedDomains = ["phishing.com", "scam-site.net", "malware.xyz"];
 
 export const validateUrlMiddleware = (req, res, next) => {
     console.log("📌 Middleware de validación ejecutándose..."); // 🔍 Log para verificar si entra aquí
@@ -10,6 +11,13 @@ export const validateUrlMiddleware = (req, res, next) => {
         return res.status(400).json({ error: "URL inválida" });
     }
 
-    console.log("✅ URL válida:", originalUrl); // 🔍 Log de éxito
+    // Extraer dominio
+    const hostname = new URL(originalUrl).hostname;
+    if (blockedDomains.includes(hostname)) {
+        console.warn(`🚨 Bloqueando intento de acortar URL prohibida: ${hostname}`);
+        return res.status(403).json({ error: "Este dominio está bloqueado por seguridad." });
+    }
+
+    console.log(`✅ URL válida: ${originalUrl}`); next();
     next();
 };
