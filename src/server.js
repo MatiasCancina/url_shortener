@@ -1,23 +1,24 @@
 import express from "express";
-import cors from "cors";
 import dotenv from "dotenv";
-import { PrismaClient } from "@prisma/client";
+import cors from "cors";
 import urlRoutes from "./routes/urlRoutes.js";
+import { requestLoggerMiddleware } from "./middlewares/requestLogger.js";
+import { errorHandlerMiddleware } from "./middlewares/errorHandler.js";
 
-// Configuración
 dotenv.config();
 const app = express();
-const prisma = new PrismaClient();
 
-// Middlewares
 app.use(cors());
 app.use(express.json());
+app.use(requestLoggerMiddleware);
 
 // Rutas
 app.use("/api/urls", urlRoutes);
 
-// Servidor en marcha
-const PORT = 5000;
+// Middleware de manejo de errores (Siempre al final)
+app.use(errorHandlerMiddleware);
+
+const PORT = process.env.PORT || 5000;
 app.listen(PORT, () => {
-    console.log(`🔥 Servidor corriendo en http://localhost:${PORT}`);
+    console.log(`Servidor corriendo en http://localhost:${PORT}`);
 });
