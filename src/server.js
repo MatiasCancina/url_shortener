@@ -5,6 +5,7 @@ import urlRoutes from "./routes/urlRoutes.js";
 import { requestLoggerMiddleware } from "./middlewares/requestLogger.js";
 import { errorHandlerMiddleware } from "./middlewares/errorHandler.js";
 import { cleanupExpiredUrls } from "./middlewares/cleanupExpiredUrls.js";
+import { limiter } from "./middlewares/rateLimit.js";
 
 dotenv.config();
 const app = express();
@@ -13,6 +14,7 @@ app.use(cors());
 app.use(express.json());
 app.use(requestLoggerMiddleware);
 app.use(cleanupExpiredUrls);
+app.use("/api/urls/shorten", limiter);
 
 // Rutas
 app.use("/api/urls", urlRoutes);
